@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CertiFlow — Certificate Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head><body>
+<div class="shell">
+<aside class="sidebar"><a class="brand" href="#"><span class="logo">✦</span><span>certi<span class="purple">flow</span></span></a>
+<div class="label">WORKSPACE</div><button class="nav active" data-view="create">✳ &nbsp; Create certificates</button><button class="nav" data-view="activity">◷ &nbsp; Job activity</button>
+<div class="side-bottom"><div class="tip"><div class="tip-icon">✧</div><b>Made for moments that matter.</b><p>Turn achievements into something official.</p></div><div class="connection"><i id="connDot"></i><span id="connText">Checking API…</span></div></div></aside>
+<main><header class="topbar"><div class="crumb">Workspace <span>/</span> <b id="crumb">Create certificates</b></div><div class="profile"><span>CF</span> Certificate Studio</div></header>
+<section id="createView" class="view active">
+<div class="hero"><div class="hero-copy"><div class="eyebrow">✦ &nbsp; CERTIFICATE STUDIO</div><h1>Make every achievement<br><em>official.</em></h1><p>Turn a recipient list into a collection of certificates. Upload a CSV, start a job, and download the finished PDFs.</p><div class="pills"><span>✧ Bulk generation</span><span>↗ PDF downloads</span><span>◷ Live progress</span></div></div>
+<div class="art"><div class="orbit one"></div><div class="orbit two"></div><div class="cert"><small>✦ &nbsp; CERTIFICATE OF ACHIEVEMENT</small><hr><label>THIS IS PROUDLY PRESENTED TO</label><strong>Alex Morgan</strong><p>for successfully completing</p><b>Creative Problem Solving</b><div class="cert-foot"><i></i><span>✹</span></div></div><span class="float f1">✓ Verified</span><span class="float f2">● PDF ready</span></div></div>
+<div class="section-head"><div><div class="eyebrow muted">LET'S GET STARTED</div><h2>Create a certificate batch</h2></div><div class="steps"><b>01</b> DETAILS <i></i><b>02</b> GENERATE</div></div>
+<div class="columns"><section class="panel form-panel"><div class="panel-title"><span class="icon lavender">✧</span><div><h3>Batch details</h3><p>Tell us what your recipients have achieved.</p></div></div>
+<form id="jobForm"><label for="course">Course or achievement name <b class="required">*</b></label><input id="course" type="text" placeholder="e.g. Python Backend Course" maxlength="200" required><p class="field-note">This title will be associated with every certificate in this batch.</p>
+<div class="recipient-head"><div><label>Recipients <b class="required">*</b></label><p>Add people manually or import a CSV file.</p></div><span class="count" id="count">3 recipients</span></div>
+<div class="drop" id="drop"><span class="upload-icon">⇧</span><div><b>Drop your CSV here, or <button type="button" id="browse" class="link">browse files</button></b><small>CSV with columns <code>name,email</code></small></div><input id="csv" type="file" accept=".csv,text/csv" hidden></div>
+<div class="csv-row"><button type="button" class="light-btn" id="template">↓ Download CSV template</button><span id="csvStatus">Or enter recipients below</span></div>
+<div class="table-scroll"><table><thead><tr><th>RECIPIENT NAME</th><th>EMAIL ADDRESS</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<button type="button" id="add" class="add">＋ Add recipient</button>
+<div class="form-foot"><span class="privacy">◇ &nbsp; Your list is used only for this generation job.</span><button id="generate" class="primary" type="submit"><span>Generate certificates</span><b>↗</b></button></div><div id="error" class="error" hidden></div></form></section>
+<aside class="right"><section class="panel how"><div class="panel-title"><span class="icon peach">✦</span><div><h3>Simple as 1, 2, 3</h3><p>From recipient list to ready-to-share PDFs.</p></div></div>
+<div class="how-row"><span>1</span><div><b>Add your recipients</b><p>Type names and emails or upload a CSV.</p></div></div><div class="how-row"><span>2</span><div><b>Generate the batch</b><p>We process each certificate individually.</p></div></div><div class="how-row"><span>3</span><div><b>Download and share</b><p>Get each completed certificate as a PDF.</p></div></div></section>
+<section class="tip-card"><span>✧</span><div><b>Quick CSV tip</b><p>Use a header row with <code>name,email</code>. Keep one recipient per row.</p></div></section>
+<section class="api-card"><div class="api-label"><i></i> BACKEND CONNECTION</div><b>FastAPI powered</b><p>This interface connects to your existing certificate API.</p><code id="apiUrl">http://127.0.0.1:8000</code></section></aside></div>
+<section id="results" class="panel results" hidden><div class="result-head"><div class="panel-title"><span class="icon green">✓</span><div><h3>Generation progress</h3><p id="jobSubtitle">Your batch is being processed.</p></div></div><span id="jobStatus" class="status pending">Pending</span></div>
+<div class="progress-text"><span id="progressLabel">Generating your certificates…</span><b id="percent">0%</b></div><div class="progress-track"><div id="progressFill"></div></div>
+<div class="metrics"><div>Total<strong id="total">0</strong></div><div>Completed<strong id="completed">0</strong></div><div>Failed<strong id="failed">0</strong></div></div>
+<div class="table-scroll"><table class="result-table"><thead><tr><th>RECIPIENT</th><th>STATUS</th><th>DETAILS</th><th></th></tr></thead><tbody id="resultRows"></tbody></table></div>
+<div class="result-foot"><span id="footnote">Keep this page open while the batch runs.</span><button id="newBatch" class="light-btn">＋ New batch</button></div></section>
+</section>
+<section id="activityView" class="view"><div class="activity-hero"><div class="eyebrow muted">YOUR WORKSPACE</div><h1>Job activity</h1><p>Jobs created in this browser session. Select a job to refresh its status.</p></div><section class="panel activity-panel"><div class="activity-head"><div><h2>Recent batches</h2><p>Track the jobs you've started in this session.</p></div><button id="refresh" class="light-btn">↻ Refresh list</button></div><div id="activityList"></div></section></section>
+<footer><span>CertiFlow · Certificate Studio</span><span>Built for achievements worth celebrating.</span></footer></main></div><div id="toast" class="toast" role="status"></div><script src="app.js"></script></body></html>
