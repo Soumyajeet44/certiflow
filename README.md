@@ -1,75 +1,266 @@
-# Bulk Certificate Generator Backend
+# CertiFlow — Bulk Certificate Generator
 
-A FastAPI backend that accepts one request containing multiple recipients and generates PDF certificates from one predefined template.
+Generate personalized PDF certificates for multiple recipients through a clean web interface, backed by a FastAPI REST API.
 
-## Technology
+CertiFlow simplifies bulk certificate creation by accepting recipient details, processing certificates in the background, tracking job progress, and providing individual PDF downloads.
 
-- Python
-- FastAPI
-- SQLAlchemy
-- SQLite (easy local setup; can be changed to PostgreSQL)
-- ReportLab
-- Pytest
+**Built with Python, FastAPI, SQLAlchemy, SQLite, ReportLab, HTML, CSS, and JavaScript.**
 
-## Design
+**Repository:** [Soumyajeet44/certiflow](https://github.com/Soumyajeet44/certiflow)
 
-The API creates a generation job and certificate records in the database, then uses FastAPI BackgroundTasks to process the job after returning a `202 Accepted` response.
+---
 
-Processing is intentionally per certificate. If one certificate fails, the exception is captured on that certificate and the remaining recipients continue processing.
+## Overview
 
-This satisfies the assignment requirement that one failure should not unnecessarily stop other valid certificates.
+Creating certificates individually can be time-consuming. CertiFlow streamlines this process by allowing users to submit multiple recipients in one batch and generate personalized certificates automatically.
 
-## Setup
+The application consists of a FastAPI backend for job management and PDF generation, and a lightweight web frontend for uploading recipient data and tracking progress.
+
+## Features
+
+- **Bulk certificate generation:** Submit multiple recipients in one request.
+- **CSV import:** Upload recipient lists using `name,email` columns.
+- **Recipient management:** Add, edit, or remove recipients through the interface.
+- **PDF generation:** Create personalized certificates using ReportLab.
+- **Background processing:** Process certificate-generation jobs without keeping the initial request open.
+- **Progress tracking:** Monitor job status, completed certificates, failed certificates, and progress percentage.
+- **Individual downloads:** Download generated certificates as PDF files.
+- **Failure isolation:** Handle certificate-generation errors individually so one failed certificate does not unnecessarily stop the remaining recipients.
+- **REST API:** Interact with the backend through documented API endpoints.
+- **SQLite persistence:** Store job and certificate records using SQLAlchemy.
+
+## Tech Stack
+
+| Component | Technology |
+|---|---|
+| Backend | Python, FastAPI |
+| API validation | Pydantic |
+| Database | SQLite |
+| ORM | SQLAlchemy |
+| PDF generation | ReportLab |
+| Frontend | HTML, CSS, JavaScript |
+| Testing | Pytest |
+| API documentation | Swagger UI / OpenAPI |
+
+## Architecture
+
+```text
+              User
+               |
+               v
+      CertiFlow Web Frontend
+        HTML, CSS, JavaScript
+               |
+               | REST API / JSON
+               v
+          FastAPI Backend
+               |
+         Pydantic Validation
+               |
+               v
+       SQLite + SQLAlchemy
+       Job and Certificate Data
+               |
+               v
+       Background Processing
+               |
+               v
+        ReportLab PDF Engine
+               |
+               v
+       Generated PDF Certificates
+               |
+               v
+        Individual PDF Downloads
+```
+
+## Project Structure
+
+```text
+certiflow/
+├── app/
+│   ├── main.py
+│   ├── routes/
+│   └── ...
+├── certiflow-frontend/
+│   ├── index.html
+│   ├── styles.css
+│   ├── app.js
+│   └── README.txt
+├── tests/
+├── .gitignore
+├── pytest.ini
+├── requirements.txt
+└── README.md
+```
+
+*The `...` represents other application modules and files.*
+
+## Getting Started
+
+### Prerequisites
+
+Install the following before running the application:
+
+- Python 3.11 or a compatible Python version
+- pip
+- Git
+- A modern web browser
+
+### 1. Clone the repository
 
 ```bash
+git clone https://github.com/Soumyajeet44/certiflow.git
+cd certiflow
+```
+
+### 2. Create a virtual environment
+
+**Windows — PowerShell**
+
+```powershell
 python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
-Windows:
+If PowerShell blocks activation, you can use Command Prompt instead:
 
-```bash
-.venv\Scripts\activate
+```bat
+.venv\Scripts\activate.bat
 ```
 
-macOS/Linux:
+**macOS / Linux**
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies:
+### 3. Install dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-## Run
+### 4. Start the backend
+
+From the project root, run:
 
 ```bash
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
 ```
 
-Open:
+The API will be available at:
 
-```text
-http://127.0.0.1:8000/docs
-```
+- **API base URL:** http://127.0.0.1:8000
+- **Interactive API documentation:** http://127.0.0.1:8000/docs
+- **Health check:** http://127.0.0.1:8000/health
 
-## Create a generation job
+Keep this terminal running.
+
+### 5. Start the frontend
+
+Open a **second terminal** in the project root:
 
 ```bash
-curl -X POST "http://127.0.0.1:8000/jobs" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "course_name": "Python Backend Course",
-    "recipients": [
-      {"name": "Alice Johnson", "email": "alice@example.com"},
-      {"name": "Bob Smith", "email": "bob@example.com"}
-    ]
-  }'
+cd certiflow-frontend
+python -m http.server 5500
 ```
 
-Example response:
+Open the application in your browser:
+
+http://127.0.0.1:5500
+
+The frontend is configured to communicate with the backend at `http://127.0.0.1:8000`.
+
+> **Note:** This is a local development setup. The backend and frontend must both be running for the application to work.
+
+### 6. Configure CORS if necessary
+
+If the browser reports a CORS error, enable FastAPI's CORS middleware.
+
+In `app/main.py`, add the following import:
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+```
+
+After creating the FastAPI application instance, add:
+
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+    ],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+If you serve the frontend from a different origin, add that exact origin to `allow_origins`. Avoid using unrestricted origins in a deployed application.
+
+## How to Use CertiFlow
+
+1. Start the FastAPI backend and the frontend server.
+2. Open the CertiFlow web interface.
+3. Enter the course or achievement name.
+4. Add recipients manually or import a CSV file.
+5. Make sure each recipient has a name and correctly formatted email address.
+6. Click **Generate Certificates**.
+7. Monitor the job status and generation progress.
+8. Download each completed certificate as a PDF.
+
+### CSV Format
+
+Prepare a CSV file with the headers `name,email`.
+
+```csv
+name,email
+Alice Johnson,alice@example.com
+Bob Smith,bob@example.com
+Charlie Brown,charlie@example.com
+```
+
+The addresses above are illustrative examples, not real recipient inboxes. Use appropriate recipient addresses when generating certificates for actual people.
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Check API health |
+| `POST` | `/jobs` | Create a bulk certificate-generation job |
+| `GET` | `/jobs/{job_id}` | Retrieve job status, progress, and certificate results |
+| `GET` | `/jobs/certificates/{certificate_id}` | Download a generated PDF certificate |
+
+### Example: Create a Generation Job
+
+**Request**
+
+```http
+POST /jobs
+Content-Type: application/json
+```
+
+```json
+{
+  "course_name": "Python Backend Course",
+  "recipients": [
+    {
+      "name": "Alice Johnson",
+      "email": "alice@example.com"
+    },
+    {
+      "name": "Bob Smith",
+      "email": "bob@example.com"
+    }
+  ]
+}
+```
+
+**Example response**
 
 ```json
 {
@@ -79,67 +270,76 @@ Example response:
 }
 ```
 
-## Check job status
+The job ID can then be used to check processing status and retrieve certificate information.
 
-```text
-GET /jobs/{job_id}
-```
+*The response above is illustrative; actual job IDs and status values depend on execution.*
 
-The response includes total, completed, failed, percentage progress, and per-recipient results.
+## Design Decisions
 
-## Retrieve a certificate
+### Background processing
 
-```text
-GET /jobs/certificates/{certificate_id}
-```
+The API creates a generation job and its certificate records before scheduling the processing task. The client receives a job ID and can poll the status endpoint instead of waiting for every PDF to be generated in the original request.
 
-The endpoint returns the generated PDF.
+The current implementation uses FastAPI `BackgroundTasks`, which is suitable for a straightforward local project. A production deployment with large workloads would benefit from a durable task queue.
 
-## Test
+### Database persistence
+
+SQLite provides a simple setup without requiring a separate database server. SQLAlchemy manages database interactions and makes a future database migration easier.
+
+### Error handling
+
+Certificate processing is handled independently for each recipient. When a certificate fails, the application records the failure and continues processing other recipients.
+
+### PDF generation
+
+ReportLab generates certificates using a predefined layout. The current project uses a single certificate template rather than a template editor or multi-template system.
+
+## Running Tests
+
+From the project root, with your virtual environment activated, run:
 
 ```bash
 pytest
 ```
 
-## API endpoints
+Review the test output to confirm which tests pass or fail.
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| GET | `/health` | Health check |
-| POST | `/jobs` | Create bulk generation job |
-| GET | `/jobs/{job_id}` | Check job status and results |
-| GET | `/jobs/certificates/{certificate_id}` | Download certificate |
+## Security and Deployment Notes
 
-## Important implementation decisions
+- Do not commit secrets, `.env` files, private recipient data, database files, or generated certificate PDFs.
+- The default API URL points to localhost and is intended for development.
+- Before deployment, configure the frontend to use the deployed backend URL and configure CORS for the appropriate frontend origin.
+- Use a suitable production server configuration instead of relying on the development reload option.
+- For production workloads, consider authentication, authorization, rate limiting, durable background jobs, and appropriate data-retention policies.
 
-### Why background processing?
+## Future Improvements
 
-Bulk generation can take longer as the number of recipients increases. Returning a job ID immediately lets the client poll for progress rather than keeping the original HTTP request open.
+- Support multiple certificate templates.
+- Add downloadable batch archives.
+- Introduce persistent background queues for larger jobs.
+- Add authentication and user-specific job history.
+- Provide deployment configuration and automated CI testing.
 
-For this assignment, FastAPI `BackgroundTasks` keeps the implementation simple and easy to explain. For a production system with very large workloads, a durable queue such as Celery/RQ with Redis would be a stronger choice.
+## What I Learned
 
-### Why SQLite?
+This project provides practical experience with:
 
-SQLite makes the assignment easy to run without installing a separate database server. The SQLAlchemy layer keeps the database code portable to PostgreSQL.
+- Designing REST APIs using FastAPI.
+- Validating structured input with Pydantic.
+- Working with SQLAlchemy and SQLite.
+- Generating PDF documents programmatically.
+- Implementing background job processing and progress tracking.
+- Connecting a JavaScript frontend to a Python backend.
+- Handling individual processing failures and testing backend functionality.
 
-### Failure handling
+## Author
 
-Each certificate is processed independently inside its own `try/except`. A failure is saved against that certificate, the job's failed count is incremented, and processing continues.
+**Soumyajeet Mahanta**
 
-### Certificate template
+- GitHub: [@Soumyajeet44](https://github.com/Soumyajeet44)
+- LinkedIn: [soumya06](https://www.linkedin.com/in/soumya06)
 
-The assignment requires a single predefined template, so the project uses one fixed ReportLab layout. There is intentionally no template editor or multiple-template system.
+---
 
-## Interview explanation
+If you find this project useful, consider giving the repository a star.
 
-The main flow is:
-
-1. Client sends recipients to `POST /jobs`.
-2. Pydantic validates the request.
-3. A `GenerationJob` and its `Certificate` records are saved.
-4. The API returns a job ID.
-5. A background task processes each certificate.
-6. ReportLab creates the PDF.
-7. Database status is updated after each recipient.
-8. `GET /jobs/{job_id}` exposes progress and failures.
-9. Completed PDFs are retrieved through the certificate endpoint.
