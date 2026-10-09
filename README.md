@@ -1,3 +1,5 @@
+<img width="4480" height="1080" alt="image" src="https://github.com/user-attachments/assets/54e9a0f6-77ee-4c3a-b30c-346d1c697383" />
+
 # CertiFlow — Bulk Certificate Generator
 
 Generate personalized PDF certificates for multiple recipients through a clean web interface, backed by a FastAPI REST API.
